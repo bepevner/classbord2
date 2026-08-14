@@ -1,0 +1,39 @@
+name: Update Meal Data
+
+on:
+  schedule:
+    # 매일 한국시간(KST) 새벽 2시 = UTC 17시 (전날)
+    - cron: "0 17 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-meal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 이번 달 급식 데이터 가져오기
+        env:
+          OFFICE_CODE: "N10"
+          SCHOOL_CODE: "8140360"
+        run: |
+          mkdir -p meal-data
+          YM=$(TZ='Asia/Seoul' date +%Y%m)
+          FROM="${YM}01"
+          TO=$(TZ='Asia/Seoul' date -d "${FROM} +1 month -1 day" +%Y%m%d)
+          curl -s "https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${OFFICE_CODE}&SD_SCHUL_CODE=${SCHOOL_CODE}&MLSV_FROM_YMD=${FROM}&MLSV_TO_YMD=${TO}" \
+            -o "meal-data/meal_${YM}.json"
+          echo "저장 완료: meal-data/meal_${YM}.json"
+          cat "meal-data/meal_${YM}.json"
+
+      - name: 변경사항 커밋 & 푸시
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add meal-data
+          git diff --cached --quiet || git commit -m "chore: update meal data"
+          git push
