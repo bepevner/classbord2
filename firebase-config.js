@@ -1,6 +1,6 @@
 // Firebase 콘솔(console.firebase.google.com) > 프로젝트 설정 > 웹 앱 추가에서
 // 발급받은 값을 아래에 그대로 붙여넣으세요.
-const firebaseConfig = {
+window.db firebaseConfig = {
   apiKey: AIzaSyBJPO4tP-bLkc5WPJohVsj0-eA5s_9k5M8,
   authDomain: edde-86754.firebaseapp.com,
   projectId: edde-86754,
